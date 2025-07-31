@@ -56,19 +56,23 @@ adminRouter.post('/signin',async(req,res)=>{
     const admin=await adminModel.findOne({
         email:email
     })
-    if(admin){
-        const token =jwt.sign({
-            id:admin._id
-        },JWT_ADMIN_PASSWORD);
-        res.json({
-            token:token
-        })
-    }
-    else{
-        res.status(403).json({
+    if(!admin){
+        return res.status(403).json({
             msg:"Invalid admin user"
         })
     }
+    const isPasswordCorrect=bcrypt.compare(password,admin.password);
+    if(!isPasswordCorrect){
+        return res.status(403).json({
+            msg:"Incorrect password"
+        })
+    }
+    const token=jwt.sign({
+        id:admin._id
+    },JWT_ADMIN_PASSWORD);
+    res.json({
+        token:token
+    })
 
 });
 

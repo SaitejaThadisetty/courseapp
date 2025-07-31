@@ -65,19 +65,23 @@ userRouter.post('/signin',async(req,res)=>{
     const user=await userModel.findOne({
         email:email
     })
-    if(user){
-        const token =jwt.sign({
-            id:user._id
-        },JWT_USER_PASSWORD);
-        res.json({
-            token:token
-        })
-    }
-    else{
-        res.status(403).json({
+    if(!user){
+        return res.status(403).json({
             msg:"Invalid user"
         })
     }
+    const isPasswordCorrect=bcrypt.compare(password,user.password);
+    if(!isPasswordCorrect){
+        return res.status(403).json({
+            msg:"Invalid password"
+        })
+    }
+    const token=jwt.sign({
+        id:user._id
+    },JWT_USER_PASSWORD);
+    res.json({
+        token:token
+    })
 });
 
 userRouter.get('/purchases',userMiddleWare,(req,res)=>{
