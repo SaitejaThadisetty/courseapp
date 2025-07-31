@@ -4,7 +4,8 @@ const{userModel}=require("../db")
 const{z}=require('zod')
 const jwt=require('jsonwebtoken')
 const bcrypt=require('bcrypt')
-const {JWT_USER_PASSWORD}=require('../config')
+const {JWT_USER_PASSWORD}=require('../config');
+const { userMiddleWare } = require('../middleware/user');
 
 userRouter.post('/signup',async (req,res)=>{
     // this is input validation using zod library
@@ -61,7 +62,7 @@ userRouter.post('/signup',async (req,res)=>{
 
 userRouter.post('/signin',async(req,res)=>{
     const{email,password}=req.body;
-    const user=await userModel.find({
+    const user=await userModel.findOne({
         email:email
     })
     if(user){
@@ -79,7 +80,7 @@ userRouter.post('/signin',async(req,res)=>{
     }
 });
 
-userRouter.get('/purchases',(req,res)=>{
+userRouter.get('/purchases',userMiddleWare,(req,res)=>{
 
 })
 

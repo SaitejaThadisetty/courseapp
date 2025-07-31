@@ -4,6 +4,7 @@ const {z}=require('zod');
 const bcrypt=require('bcrypt');
 const { adminModel} = require('../db');
 const {JWT_ADMIN_PASSWORD}=require('../config')
+const {adminMiddleWare}=require('../middleware/admin')
 
 adminRouter.post('/signup',async (req,res)=>{
 
@@ -50,21 +51,36 @@ adminRouter.post('/signup',async (req,res)=>{
     })
 });
 
-adminRouter.post('/signin',(req,res)=>{
+adminRouter.post('/signin',async(req,res)=>{
     const{email,password}=req.body;
-    
+    const admin=await adminModel.findOne({
+        email:email
+    })
+    if(admin){
+        const token =jwt.sign({
+            id:admin._id
+        },JWT_ADMIN_PASSWORD);
+        res.json({
+            token:token
+        })
+    }
+    else{
+        res.status(403).json({
+            msg:"Invalid admin user"
+        })
+    }
 
 });
 
-adminRouter.put('/course',(req,res)=>{
+adminRouter.put('/course',adminMiddleWare,(req,res)=>{
 
 });
 
-adminRouter.post('/course',(req,res)=>{
+adminRouter.post('/course',adminMiddleWare,(req,res)=>{
 
 });
 
-adminRouter.get('/course/bulk',(req,res)=>{
+adminRouter.get('/course/bulk',adminMiddleWare,(req,res)=>{
 
 });
 

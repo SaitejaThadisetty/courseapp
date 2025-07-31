@@ -6,10 +6,16 @@ function userMiddleWare(req,res,next){
     const decoded=jwt.verify(token,JWT_USER_PASSWORD);
 
     if(decoded){
-        
+        req.userId=decoded.id;
+        next();
+    }
+    else{
+        res.status(403).json({
+            msg:"Invalid user"
+        })
     }
 }
 
 module.exports={
-    userMiddleWare:userMiddleWare;
+    userMiddleWare:userMiddleWare
 }
