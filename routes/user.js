@@ -70,7 +70,7 @@ userRouter.post('/signin',async(req,res)=>{
             msg:"Invalid user"
         })
     }
-    const isPasswordCorrect=bcrypt.compare(password,user.password);
+    const isPasswordCorrect=await bcrypt.compare(password,user.password);
     if(!isPasswordCorrect){
         return res.status(403).json({
             msg:"Invalid password"

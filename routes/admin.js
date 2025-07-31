@@ -2,6 +2,7 @@ const {Router}=require('express');
 const adminRouter=Router();
 const {z}=require('zod');
 const bcrypt=require('bcrypt');
+const jwt=require('jsonwebtoken')
 const { adminModel} = require('../db');
 const {JWT_ADMIN_PASSWORD}=require('../config')
 const {adminMiddleWare}=require('../middleware/admin')
@@ -61,7 +62,7 @@ adminRouter.post('/signin',async(req,res)=>{
             msg:"Invalid admin user"
         })
     }
-    const isPasswordCorrect=bcrypt.compare(password,admin.password);
+    const isPasswordCorrect=await bcrypt.compare(password,admin.password);
     if(!isPasswordCorrect){
         return res.status(403).json({
             msg:"Incorrect password"
