@@ -3,7 +3,7 @@ const adminRouter=Router();
 const {z}=require('zod');
 const bcrypt=require('bcrypt');
 const jwt=require('jsonwebtoken')
-const { adminModel} = require('../db');
+const { adminModel, courseModel} = require('../db');
 const {JWT_ADMIN_PASSWORD}=require('../config')
 const {adminMiddleWare}=require('../middleware/admin')
 
@@ -40,16 +40,25 @@ adminRouter.post('/signup',async (req,res)=>{
             firstName:firstName,
             lastName:lastName
         });
+        res.json({
+            msg:"admin created successfully"
+        })
     }
     catch(e){
-        res.status(403).json({
-            msg:"User already exists"
+        //check the type of error first
+        //if user exists error
+        if(e.code===11000){
+            return res.status(403).json({
+                msg:"Email already exists"
+            })
+        }
+        //other unexpected errors
+        console.log("Signup error:",e);
+        res.status(500).json({
+            msg:"Something went wrong"
         })
-        return ;
+        
     }
-    res.json({
-        msg:"User created Successfully"
-    })
 });
 
 adminRouter.post('/signin',async(req,res)=>{
@@ -77,16 +86,56 @@ adminRouter.post('/signin',async(req,res)=>{
 
 });
 
-adminRouter.put('/course',adminMiddleWare,(req,res)=>{
-
+adminRouter.put('/course',adminMiddleWare,async(req,res)=>{
+    const creatorId=req.userId;
+    const{title,description,price,imageUrl}=req.body;
+    try{
+        const course=await courseModel.updateOne({
+            title,description,price,imageUrl,creatorId
+        })
+        res.json({
+            msg:"Course updated successfully",
+            courseId:course._id
+        })
+    }
+    catch(e){
+        console.log("Error is:",e)
+        res.status(500).json({
+            msg:"Database error",
+        })
+    }
 });
 
-adminRouter.post('/course',adminMiddleWare,(req,res)=>{
-
+adminRouter.post('/course',adminMiddleWare,async(req,res)=>{
+    const creatorId=req.userId;
+    const{title,description,price,imageUrl}=req.body;
+    
+    try{
+        const course=await courseModel.create({
+        title,description,price,imageUrl,creatorId
+        })
+        res.json({
+            msg:"Course created successfully",
+            courseId:course._id
+        })
+    }
+    catch(e){
+        console.log("Error:",e);
+        req.status(500).json({
+            msg:"db error"
+        })
+    }
+    
 });
 
-adminRouter.get('/course/bulk',adminMiddleWare,(req,res)=>{
-
+adminRouter.get('/course/bulk',adminMiddleWare,async(req,res)=>{
+    const creatorId=req.userId;
+    const courses=await courseModel.find({
+        creatorId
+    })
+    res.json({
+        courses
+    })
 });
 
 module.exports={

@@ -44,13 +44,15 @@ userRouter.post('/signup',async (req,res)=>{
         })
     }
     catch(e){
-        //Checking if user already exists
-        if(err.code===11000){
+        //check the type of error first
+        //if user exists error
+        if(e.code===11000){
             return res.status(400).json({
                 msg:"Email already exists"
             })
         }
-        //Unexpected errors
+        //other u
+        //unexpected errors
         console.log("Signup error:",e);
         res.status(500).json({
             msg:"Something went wrong"
