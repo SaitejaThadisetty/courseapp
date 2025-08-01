@@ -51,8 +51,7 @@ userRouter.post('/signup',async (req,res)=>{
                 msg:"Email already exists"
             })
         }
-        //other u
-        //unexpected errors
+        //other unexpected errors
         console.log("Signup error:",e);
         res.status(500).json({
             msg:"Something went wrong"
